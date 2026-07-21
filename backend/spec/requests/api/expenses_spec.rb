@@ -23,6 +23,16 @@ RSpec.describe "Api::Expenses", type: :request do
       expect(json.first["id"]).to eq(expense2.id)
       expect(json.last["id"]).to eq(expense1.id)
     end
+
+    it "returns same-date expenses ordered by created_at descending" do
+      expense3 = Expense.create!(description: "Coffee", amount: 5.00, category: food_category, date: Date.today)
+
+      get "/api/expenses"
+
+      json = JSON.parse(response.body)
+      expect(json.first["id"]).to eq(expense3.id)
+      expect(json.second["id"]).to eq(expense2.id)
+    end
   end
 
   describe "POST /api/expenses" do
