@@ -5,7 +5,7 @@ RSpec.describe "Api::Expenses", type: :request do
   let!(:transport_category) { Category.create!(name: "Transport") }
 
   describe "GET /api/expenses" do
-  let!(:expense1) { Expense.create!(description: "Lunch", amount: 100.00, category: food_category, date: Date.today) }
+  let!(:expense1) { Expense.create!(description: "Lunch", amount: 100.00, category: food_category, date: Date.today - 1) }
   let!(:expense2) { Expense.create!(description: "Taxi", amount: 50.00, category: transport_category, date: Date.today) }
 
     it "returns all expenses with category information" do
@@ -16,12 +16,22 @@ RSpec.describe "Api::Expenses", type: :request do
       expect(json.length).to eq(2)
     end
 
-    it "returns expenses in descending order by created_at" do
+    it "returns expenses in descending order by date" do
       get "/api/expenses"
 
       json = JSON.parse(response.body)
       expect(json.first["id"]).to eq(expense2.id)
       expect(json.last["id"]).to eq(expense1.id)
+    end
+
+    it "returns same-date expenses ordered by created_at descending" do
+      expense3 = Expense.create!(description: "Coffee", amount: 5.00, category: food_category, date: Date.today)
+
+      get "/api/expenses"
+
+      json = JSON.parse(response.body)
+      expect(json.first["id"]).to eq(expense3.id)
+      expect(json.second["id"]).to eq(expense2.id)
     end
   end
 
@@ -46,7 +56,7 @@ RSpec.describe "Api::Expenses", type: :request do
         expect(response).to have_http_status(:created)
         json = JSON.parse(response.body)
         expect(json["description"]).to eq("Team Lunch")
-        expect(json["amount"]).to eq("150.5")
+        expect(json["amount"]).to eq(150.5)
       end
     end
 
