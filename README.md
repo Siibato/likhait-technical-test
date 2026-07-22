@@ -135,6 +135,9 @@ cd expense_system_rails
 # Start all services
 docker compose up
 
+# Optional: seed sample data (run once, data persists across restarts)
+docker compose exec backend rails db:seed
+
 # Access the application
 # Frontend: http://localhost:5173
 # Backend API: http://localhost:3000/api

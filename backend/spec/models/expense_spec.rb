@@ -42,4 +42,10 @@ RSpec.describe Expense, type: :model do
     expect(expense).not_to be_valid
     expect(expense.errors[:description]).to include("can't be blank")
   end
+
+  it "is invalid with a blank date" do
+    expense = Expense.new(description: "Lunch", amount: 10.00, category: category, date: nil)
+    expect(expense).not_to be_valid
+    expect(expense.errors[:date]).to include("can't be blank")
+  end
 end

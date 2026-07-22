@@ -4,6 +4,7 @@ class Expense < ApplicationRecord
   validates :description, presence: true
   validates :amount, numericality: { greater_than: 0 }
   validates :category_id, presence: true
+  validates :date, presence: true
   validate :date_cannot_be_in_future
 
   before_validation :strip_description
