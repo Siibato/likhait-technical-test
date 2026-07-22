@@ -171,5 +171,35 @@ RSpec.describe "Api::Expenses", type: :request do
       json = JSON.parse(response.body)
       expect(json["errors"]).to include("Date cannot be in the future")
     end
+
+    it "returns 404 for a non-existent expense" do
+      patch "/api/expenses/999999", params: {
+        expense: { description: "Updated" }
+      }, as: :json
+
+      expect(response).to have_http_status(:not_found)
+      json = JSON.parse(response.body)
+      expect(json["errors"]).to include("Resource not found")
+    end
+  end
+
+  describe "DELETE /api/expenses/:id" do
+    let!(:expense) { Expense.create!(description: "Lunch", amount: 50.00, category: food_category, date: Date.today) }
+
+    it "deletes the expense" do
+      expect {
+        delete "/api/expenses/#{expense.id}"
+      }.to change(Expense, :count).by(-1)
+
+      expect(response).to have_http_status(:no_content)
+    end
+
+    it "returns 404 for a non-existent expense" do
+      delete "/api/expenses/999999"
+
+      expect(response).to have_http_status(:not_found)
+      json = JSON.parse(response.body)
+      expect(json["errors"]).to include("Resource not found")
+    end
   end
 end

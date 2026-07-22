@@ -21,7 +21,7 @@ class Api::ExpensesController < ApplicationController
     pagy, paginated_expenses = pagy(:offset, expenses, page: page, limit: per_page)
 
     render json: {
-      expenses: paginated_expenses.map { |expense| format_expense(expense) },
+      expenses: paginated_expenses.map { |expense| ExpenseSerializer.new(expense).as_json },
       meta: {
         current_page: pagy.page,
         per_page: pagy.limit,
@@ -35,7 +35,7 @@ class Api::ExpensesController < ApplicationController
     expense = Expense.new(expense_params)
 
     if expense.save
-      render json: format_expense(expense), status: :created
+      render json: ExpenseSerializer.new(expense).as_json, status: :created
     else
       render json: { errors: expense.errors.full_messages }, status: :unprocessable_entity
     end
@@ -45,7 +45,7 @@ class Api::ExpensesController < ApplicationController
     expense = Expense.find(params[:id])
 
     if expense.update(expense_params)
-      render json: format_expense(expense)
+      render json: ExpenseSerializer.new(expense).as_json
     else
       render json: { errors: expense.errors.full_messages }, status: :unprocessable_entity
     end
@@ -61,17 +61,5 @@ class Api::ExpensesController < ApplicationController
 
   def expense_params
     params.require(:expense).permit(:description, :amount, :category_id, :date)
-  end
-
-  def format_expense(expense)
-    {
-      id: expense.id,
-      description: expense.description,
-      amount: expense.amount.to_f,
-      category: expense.category.name,
-      date: expense.date.to_s,
-      created_at: expense.created_at,
-      updated_at: expense.updated_at
-    }
   end
 end
