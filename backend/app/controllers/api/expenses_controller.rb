@@ -10,7 +10,7 @@ class Api::ExpensesController < ApplicationController
       month = params[:month].to_i
 
       if year < 1 || month < 1 || month > 12
-        render json: { errors: ["Invalid year or month"] }, status: :unprocessable_entity
+        render json: { errors: [ "Invalid year or month" ] }, status: :unprocessable_entity
         return
       end
 
