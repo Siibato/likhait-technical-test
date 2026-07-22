@@ -16,7 +16,7 @@ class Category < ApplicationRecord
     return if name.blank?
 
     if Category.where("LOWER(name) = LOWER(?)", name).where.not(id: id).exists?
-      errors.add(:name, "Category '#{name}' already exists")
+      errors.add(:base, "Category '#{name}' already exists")
     end
   end
 end
