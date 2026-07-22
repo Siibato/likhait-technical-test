@@ -26,6 +26,11 @@ describe("useExpenses", () => {
             per_page: 10,
             total_pages: 1,
             total_count: 1,
+            summary: {
+              total_amount: 10,
+              total_count: 1,
+              categories: [{ category: "Food", amount: 10, count: 1 }],
+            },
           },
         }),
       } as unknown as Response),
