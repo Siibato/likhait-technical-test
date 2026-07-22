@@ -1,0 +1,24 @@
+.deleteConfirmation {
+  padding: 1rem 0;
+}
+
+.deleteMessage {
+  margin-bottom: 1.5rem;
+  color: var(--color-text-primary);
+}
+
+.deleteDescription {
+  margin-bottom: 1.5rem;
+  color: var(--color-text-secondary);
+}
+
+.deleteError {
+  color: var(--color-red-re05);
+  margin-bottom: 1.5rem;
+}
+
+.deleteActions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}

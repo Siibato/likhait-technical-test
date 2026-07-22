@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { COLORS } from "../constants/colors";
+import styles from "./ItemTable.module.css";
 
 interface Column {
   key: string;
@@ -17,66 +17,45 @@ interface ItemTableProps {
   columns: Column[];
   data: any[];
   emptyMessage?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+function getAlignClass(align: Column["align"]) {
+  switch (align) {
+    case "center":
+      return { textAlign: "center" as const };
+    case "right":
+      return { textAlign: "right" as const };
+    default:
+      return { textAlign: "left" as const };
+  }
 }
 
 export function ItemTable({
   columns,
   data,
   emptyMessage = "No data available",
+  className = "",
+  style,
 }: ItemTableProps) {
-  const tableStyle: React.CSSProperties = {
-    width: "100%",
-    borderCollapse: "collapse",
-    backgroundColor: COLORS.background.main,
-    borderRadius: "0.5rem",
-    overflow: "hidden",
-    border: `1px solid ${COLORS.border}`,
-  };
-
-  const theadStyle: React.CSSProperties = {
-    backgroundColor: COLORS.background.card,
-  };
-
-  const thStyle: React.CSSProperties = {
-    padding: "0.75rem",
-    textAlign: "left",
-    fontWeight: 600,
-    color: COLORS.text.primary,
-    borderBottom: `2px solid ${COLORS.border}`,
-  };
-
-  const tdStyle: React.CSSProperties = {
-    padding: "0.75rem",
-    borderBottom: `1px solid ${COLORS.border}`,
-    color: COLORS.text.primary,
-  };
-
-  const emptyStyle: React.CSSProperties = {
-    padding: "2rem",
-    textAlign: "center",
-    color: COLORS.text.secondary,
-  };
-
   if (data.length === 0) {
     return (
-      <div style={tableStyle}>
-        <div style={emptyStyle}>{emptyMessage}</div>
+      <div className={`${styles.tableWrapper} ${className}`} style={style}>
+        <div className={styles.empty}>{emptyMessage}</div>
       </div>
     );
   }
 
   return (
-    <table style={tableStyle}>
-      <thead style={theadStyle}>
+    <table className={`${styles.tableWrapper} ${className}`} style={style}>
+      <thead className={styles.thead}>
         <tr>
           {columns.map((column) => (
             <th
               key={column.key}
-              style={{
-                ...thStyle,
-                textAlign: column.align || "left",
-                width: column.width,
-              }}
+              className={styles.th}
+              style={{ ...getAlignClass(column.align), width: column.width }}
             >
               {column.header}
             </th>
@@ -89,10 +68,8 @@ export function ItemTable({
             {columns.map((column) => (
               <td
                 key={column.key}
-                style={{
-                  ...tdStyle,
-                  textAlign: column.align || "left",
-                }}
+                className={styles.td}
+                style={getAlignClass(column.align)}
               >
                 {column.render
                   ? column.render(item)

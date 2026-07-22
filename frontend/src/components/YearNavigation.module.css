@@ -1,0 +1,33 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.button {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid var(--color-secondary-s04);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--color-secondary-s08);
+  transition: all 0.2s;
+}
+
+.button:hover {
+  background: var(--color-secondary-s02);
+  border-color: var(--color-secondary-s05);
+}
+
+.year {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--color-secondary-s10);
+  min-width: 120px;
+  text-align: center;
+}

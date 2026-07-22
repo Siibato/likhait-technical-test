@@ -65,7 +65,7 @@ export function useExpenseForm({ initialData, onSubmit }: UseExpenseFormProps) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -74,25 +74,24 @@ export function useExpenseForm({ initialData, onSubmit }: UseExpenseFormProps) {
 
     setIsSubmitting(true);
     setFormError("");
-    try {
-      await onSubmit(formData);
-      // Reset form on success
-      setFormData({
-        amount: "",
-        description: "",
-        category_id: "",
-        date: formatDate(new Date()),
-      });
-      setErrors({});
-    } catch (error) {
-      if (isApiError(error)) {
-        setFormError(error.message);
-      } else {
-        setFormError("An unexpected error occurred. Please try again.");
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
+    onSubmit(formData)
+      .then(() => {
+        setFormData({
+          amount: "",
+          description: "",
+          category_id: "",
+          date: formatDate(new Date()),
+        });
+        setErrors({});
+      })
+      .catch((error) => {
+        if (isApiError(error)) {
+          setFormError(error.message);
+        } else {
+          setFormError("An unexpected error occurred. Please try again.");
+        }
+      })
+      .finally(() => setIsSubmitting(false));
   };
 
   const resetForm = () => {

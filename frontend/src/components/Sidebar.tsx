@@ -1,5 +1,4 @@
-import React from "react";
-import { COLORS } from "../constants/colors";
+import styles from "./Sidebar.module.css";
 
 interface SidebarProps {
   onNavigate?: (page: string) => void;
@@ -8,116 +7,33 @@ interface SidebarProps {
   onToggleCollapse?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({
+export default function Sidebar({
   onNavigate,
   currentPage = "history",
   isCollapsed = false,
   onToggleCollapse,
-}) => {
-  const sidebarStyle: React.CSSProperties = {
-    width: isCollapsed ? "80px" : "360px",
-    height: "100vh",
-    background: `linear-gradient(180deg, ${COLORS.primary.p01} 0%, ${COLORS.primary.p02} 100%)`,
-    display: "flex",
-    flexDirection: "column",
-    borderRight: `1px solid ${COLORS.secondary.s04}`,
-    position: "fixed",
-    left: 0,
-    top: 0,
-    transition: "width 0.1s ease",
-  };
-
-  const headerStyle: React.CSSProperties = {
-    padding: "24px 16px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottom: `1px solid ${COLORS.secondary.s04}`,
-  };
-
-  const logoStyle: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    gap: "16px",
-  };
-
-  const logoIconStyle: React.CSSProperties = {
-    width: "48px",
-    height: "48px",
-    background: COLORS.primary.p07,
-    borderRadius: "12px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "28px",
-    fontWeight: "bold",
-    color: "white",
-  };
-
-  const logoTextStyle: React.CSSProperties = {
-    display: isCollapsed ? "none" : "flex",
-    flexDirection: "column",
-  };
-
-  const logoTitleStyle: React.CSSProperties = {
-    fontSize: "24px",
-    fontWeight: 700,
-    color: COLORS.primary.p09,
-    lineHeight: 1.2,
-  };
-
-  const toggleButtonStyle: React.CSSProperties = {
-    width: "40px",
-    height: "40px",
-    background: "transparent",
-    border: "none",
-    borderRadius: "8px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    cursor: "pointer",
-
-    transition: "background 0.2s",
-    marginLeft: "16px",
-  };
-
-  const navStyle: React.CSSProperties = {
-    flex: 1,
-    padding: "16px 0",
-  };
-
-  const navItemStyle: React.CSSProperties = {
-    width: "100%",
-    padding: isCollapsed ? "16px" : "16px 24px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: isCollapsed ? "center" : "flex-start",
-    gap: "16px",
-    background: currentPage === "history" ? COLORS.primary.p03 : "transparent",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "18px",
-    fontWeight: 500,
-    color: COLORS.primary.p09,
-    textAlign: "left",
-    transition: "background 0.2s",
-  };
-
-  const navTextStyle: React.CSSProperties = {
-    display: isCollapsed ? "none" : "inline",
-  };
-
+}: SidebarProps) {
   return (
-    <aside style={sidebarStyle}>
-      <div style={headerStyle}>
-        <div style={logoStyle}>
-          <span style={logoIconStyle}>$</span>
-          <div style={logoTextStyle}>
-            <div style={logoTitleStyle}>Expense Tracker</div>
+    <aside
+      className={[
+        styles.sidebar,
+        isCollapsed ? styles.collapsed : styles.expanded,
+      ].join(" ")}
+    >
+      <div className={styles.header}>
+        <div className={styles.logo}>
+          <span className={styles.logoIcon}>$</span>
+          <div
+            className={[
+              styles.logoText,
+              isCollapsed ? styles.logoTextCollapsed : "",
+            ].filter(Boolean).join(" ")}
+          >
+            <div className={styles.logoTitle}>Expense Tracker</div>
           </div>
         </div>
         <button
-          style={toggleButtonStyle}
+          className={styles.toggleButton}
           aria-label="Toggle sidebar"
           onClick={onToggleCollapse}
         >
@@ -126,32 +42,26 @@ const Sidebar: React.FC<SidebarProps> = ({
             height="24"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#464343"
+            stroke="currentColor"
             strokeWidth="2"
-            style={{
-              transform: isCollapsed ? "rotate(180deg)" : "rotate(0deg)",
-              transition: "transform 0.3s ease",
-            }}
+            className={[
+              styles.toggleIcon,
+              isCollapsed ? styles.toggleIconCollapsed : "",
+            ].filter(Boolean).join(" ")}
           >
             <path d="M15 18l-6-6 6-6" />
           </svg>
         </button>
       </div>
 
-      <nav style={navStyle}>
+      <nav className={styles.nav}>
         <button
-          style={navItemStyle}
+          className={[
+            styles.navItem,
+            currentPage === "history" ? styles.active : "",
+            isCollapsed ? styles.navItemCollapsed : styles.navItemExpanded,
+          ].filter(Boolean).join(" ")}
           onClick={() => onNavigate?.("history")}
-          onMouseEnter={(e) => {
-            if (currentPage !== "history") {
-              e.currentTarget.style.background = COLORS.primary.p02;
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (currentPage !== "history") {
-              e.currentTarget.style.background = "transparent";
-            }
-          }}
         >
           <svg
             width="24"
@@ -166,11 +76,11 @@ const Sidebar: React.FC<SidebarProps> = ({
             <line x1="8" y1="2" x2="8" y2="6" />
             <line x1="3" y1="10" x2="21" y2="10" />
           </svg>
-          <span style={navTextStyle}>History</span>
+          <span className={isCollapsed ? styles.navTextCollapsed : styles.navText}>
+            History
+          </span>
         </button>
       </nav>
     </aside>
   );
-};
-
-export default Sidebar;
+}

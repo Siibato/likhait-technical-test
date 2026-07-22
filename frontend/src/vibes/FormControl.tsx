@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { COLORS } from "../constants/colors";
+import styles from "./FormControl.module.css";
 
 interface FormControlProps {
   label?: string;
@@ -11,6 +11,8 @@ interface FormControlProps {
   required?: boolean;
   children: React.ReactNode;
   fullWidth?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 export function FormControl({
@@ -19,39 +21,27 @@ export function FormControl({
   required,
   children,
   fullWidth = false,
+  className = "",
+  style,
 }: FormControlProps) {
-  const containerStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.5rem",
-    width: fullWidth ? "100%" : "auto",
-  };
-
-  const labelStyle: React.CSSProperties = {
-    fontSize: "0.875rem",
-    fontWeight: 600,
-    color: COLORS.text.primary,
-    display: "flex",
-    alignItems: "center",
-    gap: "0.25rem",
-  };
-
-  const errorStyle: React.CSSProperties = {
-    fontSize: "0.75rem",
-    color: COLORS.danger,
-    marginTop: "-0.25rem",
-  };
+  const containerClasses = [
+    styles.container,
+    fullWidth ? styles["container--fullWidth"] : "",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
-    <div style={containerStyle}>
+    <div className={containerClasses} style={style}>
       {label && (
-        <label style={labelStyle}>
+        <label className={styles.label}>
           {label}
-          {required && <span style={{ color: COLORS.danger }}>*</span>}
+          {required && <span className={styles.required}>*</span>}
         </label>
       )}
       {children}
-      {error && <span style={errorStyle}>{error}</span>}
+      {error && <span className={styles.error}>{error}</span>}
     </div>
   );
 }

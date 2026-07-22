@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useExpenses } from "../hooks/useExpenses";
 import { useCategories } from "../hooks/useCategories";
 import { useCreateExpense } from "../hooks/useCreateExpense";
@@ -12,26 +12,26 @@ import CategoryBreakdown from "../components/CategoryBreakdown";
 import { CalendarExpenseTable } from "../components/CalendarExpenseTable";
 import { ExpenseForm } from "../components/ExpenseForm";
 import { CategoryForm } from "../components/CategoryForm";
+import { SkeletonSummary } from "../components/SkeletonSummary";
+import { SkeletonTable } from "../components/SkeletonTable";
+import { ErrorState } from "../components/ErrorState";
 import { Modal, Button } from "../vibes";
-import { COLORS } from "../constants/colors";
+import styles from "./HistoryPage.module.css";
 
 const HistoryPage: React.FC = () => {
   // Get year and month from URL params, default to current date if not provided
-  const getInitialYearMonth = () => {
+  const [selectedYear, setSelectedYear] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     const currentDate = new Date();
     const yearParam = params.get("year");
+    return yearParam ? parseInt(yearParam) : currentDate.getFullYear();
+  });
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const currentDate = new Date();
     const monthParam = params.get("month");
-
-    return {
-      year: yearParam ? parseInt(yearParam) : currentDate.getFullYear(),
-      month: monthParam ? parseInt(monthParam) : currentDate.getMonth() + 1,
-    };
-  };
-
-  const initial = getInitialYearMonth();
-  const [selectedYear, setSelectedYear] = useState(initial.year);
-  const [selectedMonth, setSelectedMonth] = useState(initial.month);
+    return monthParam ? parseInt(monthParam) : currentDate.getMonth() + 1;
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -40,6 +40,7 @@ const HistoryPage: React.FC = () => {
     data: expensesData,
     isLoading,
     error: expensesError,
+    refetch,
   } = useExpenses(selectedYear, selectedMonth, currentPage);
 
   const expenses = expensesData?.expenses ?? [];
@@ -51,120 +52,90 @@ const HistoryPage: React.FC = () => {
   const deleteExpenseMutation = useDeleteExpense();
 
   // Update URL when year or month changes
-  const updateURL = (year: number, month: number) => {
+  useEffect(() => {
     const params = new URLSearchParams();
-    params.set("year", year.toString());
-    params.set("month", month.toString());
+    params.set("year", selectedYear.toString());
+    params.set("month", selectedMonth.toString());
     const newURL = `${window.location.pathname}?${params.toString()}`;
     window.history.pushState({}, "", newURL);
-  };
-
-  useEffect(() => {
-    updateURL(selectedYear, selectedMonth);
   }, [selectedYear, selectedMonth]);
 
-  const handleYearChange = (year: number) => {
+  const handleYearChange = useCallback((year: number) => {
     setSelectedYear(year);
     setCurrentPage(1);
-  };
+  }, []);
 
-  const handleMonthChange = (month: number, year: number) => {
+  const handleMonthChange = useCallback((month: number, year: number) => {
     setSelectedYear(year);
     setSelectedMonth(month);
     setCurrentPage(1);
-  };
+  }, []);
 
-  const handleAddExpense = async (data: ExpenseFormData) => {
-    await createExpenseMutation.mutateAsync(data);
-    setIsModalOpen(false);
-  };
+  const handleAddExpense = useCallback(
+    async (data: ExpenseFormData) => {
+      await createExpenseMutation.mutateAsync(data);
+      setIsModalOpen(false);
+    },
+    [createExpenseMutation],
+  );
 
-  const handleAddCategory = async (name: string) => {
-    await createCategoryMutation.mutateAsync(name);
-    setIsCategoryModalOpen(false);
-  };
+  const handleAddCategory = useCallback(
+    async (name: string) => {
+      await createCategoryMutation.mutateAsync(name);
+      setIsCategoryModalOpen(false);
+    },
+    [createCategoryMutation],
+  );
 
-  const handleUpdateExpense = async (id: number, data: ExpenseFormData) => {
-    await updateExpenseMutation.mutateAsync({ id, data });
-  };
+  const handleUpdateExpense = useCallback(
+    async (id: number, data: ExpenseFormData) => {
+      await updateExpenseMutation.mutateAsync({ id, data });
+    },
+    [updateExpenseMutation],
+  );
 
-  const handleDeleteExpense = async (id: number) => {
-    await deleteExpenseMutation.mutateAsync(id);
-  };
+  const handleDeleteExpense = useCallback(
+    async (id: number) => {
+      await deleteExpenseMutation.mutateAsync(id);
+    },
+    [deleteExpenseMutation],
+  );
 
   // Calculate category breakdown
-  const categoryData = expenses.reduce(
-    (acc, expense) => {
-      const category = expense.category || "Uncategorized";
-      if (!acc[category]) {
-        acc[category] = { category, amount: 0, count: 0 };
-      }
-      acc[category].amount += Number(expense.amount);
-      acc[category].count += 1;
-      return acc;
-    },
-    {} as Record<string, { category: string; amount: number; count: number }>,
-  );
+  const { categoriesSummary, total, totalCount } = useMemo(() => {
+    const categoryData = expenses.reduce(
+      (acc, expense) => {
+        const category = expense.category || "Uncategorized";
+        if (!acc[category]) {
+          acc[category] = { category, amount: 0, count: 0 };
+        }
+        acc[category].amount += Number(expense.amount);
+        acc[category].count += 1;
+        return acc;
+      },
+      {} as Record<string, { category: string; amount: number; count: number }>,
+    );
 
-  const categoriesSummary = Object.values(categoryData).sort(
-    (a, b) => b.amount - a.amount,
-  );
-  const total = categoriesSummary.reduce((sum, cat) => sum + cat.amount, 0);
-  const totalCount = categoriesSummary.reduce((sum, cat) => sum + cat.count, 0);
+    const categoriesSummary = Object.values(categoryData).sort(
+      (a, b) => b.amount - a.amount,
+    );
+    const total = categoriesSummary.reduce((sum, cat) => sum + cat.amount, 0);
+    const totalCount = categoriesSummary.reduce((sum, cat) => sum + cat.count, 0);
 
-  const pageStyle: React.CSSProperties = {
-    padding: "48px 64px",
-    minHeight: "100vh",
-    background: COLORS.secondary.s01,
-  };
-
-  const headerStyle: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    gap: "24px",
-    justifyContent: "space-between",
-  };
-
-  const leftHeaderStyle: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    gap: "24px",
-  };
-
-  const titleStyle: React.CSSProperties = {
-    fontSize: "40px",
-    fontWeight: 700,
-    color: COLORS.secondary.s10,
-    margin: 0,
-    flexShrink: 0,
-  };
-
-  const headerActionsStyle: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-  };
-
-  const loadingStyle: React.CSSProperties = {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: "48px",
-    fontSize: "18px",
-    color: COLORS.secondary.s08,
-  };
+    return { categoriesSummary, total, totalCount };
+  }, [expenses]);
 
   return (
-    <div style={pageStyle}>
-      <div style={headerStyle}>
-        <div style={leftHeaderStyle}>
-          <h1 style={titleStyle}>Expense History</h1>
+    <div className={styles.page}>
+      <div className={styles.header}>
+        <div className={styles.leftHeader}>
+          <h1 className={styles.title}>Expense History</h1>
           <YearNavigation
             currentYear={selectedYear}
             onYearChange={handleYearChange}
           />
         </div>
-        <div style={headerActionsStyle}>
+        <div className={styles.headerActions}>
           <Button variant="secondary" onClick={() => setIsCategoryModalOpen(true)}>
             Add Category
           </Button>
@@ -182,11 +153,12 @@ const HistoryPage: React.FC = () => {
 
       <div>
         {isLoading ? (
-          <div style={loadingStyle}>Loading...</div>
+          <>
+            <SkeletonSummary />
+            <SkeletonTable />
+          </>
         ) : expensesError ? (
-          <div style={loadingStyle}>
-            Error loading expenses: {expensesError.message}
-          </div>
+          <ErrorState error={expensesError} onRetry={() => refetch()} />
         ) : (
           <>
             <CategoryBreakdown
@@ -194,7 +166,7 @@ const HistoryPage: React.FC = () => {
               total={total}
               totalCount={totalCount}
             />
-            <div style={{ marginTop: "32px" }}>
+            <div className={styles.tableContainer}>
               <CalendarExpenseTable
                 expenses={expenses}
                 categories={categories}
@@ -203,6 +175,7 @@ const HistoryPage: React.FC = () => {
                 onPageChange={setCurrentPage}
                 onUpdate={handleUpdateExpense}
                 onDelete={handleDeleteExpense}
+                onAddExpense={() => setIsModalOpen(true)}
               />
             </div>
           </>

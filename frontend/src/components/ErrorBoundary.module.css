@@ -1,0 +1,12 @@
+.container {
+  padding: 48px;
+  text-align: center;
+}
+
+.title {
+  color: var(--color-red-re05);
+}
+
+.message {
+  color: var(--color-text-secondary);
+}

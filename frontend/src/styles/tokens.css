@@ -1,0 +1,91 @@
+:root {
+  /* Primary (Blue) */
+  --color-primary-p01: #ebf3ff;
+  --color-primary-p02: #dce8ff;
+  --color-primary-p03: #aac8ff;
+  --color-primary-p04: #73a5ff;
+  --color-primary-p05: #2864f0;
+  --color-primary-p06: #3264dc;
+  --color-primary-p07: #285ac8;
+  --color-primary-p08: #1e46aa;
+  --color-primary-p09: #23418c;
+  --color-primary-p10: #143278;
+
+  /* Secondary (Gray) */
+  --color-secondary-s01: #f7f5f5;
+  --color-secondary-s02: #f0eded;
+  --color-secondary-s03: #e9e7e7;
+  --color-secondary-s04: #e1dcdc;
+  --color-secondary-s05: #d7d2d2;
+  --color-secondary-s06: #bebaba;
+  --color-secondary-s07: #aaa7a7;
+  --color-secondary-s08: #8c8989;
+  --color-secondary-s09: #6e6b6b;
+  --color-secondary-s10: #464343;
+
+  /* Red */
+  --color-red-re02: #fad2d7;
+  --color-red-re04: #f07882;
+  --color-red-re05: #dc1e32;
+  --color-red-re07: #a51428;
+  --color-red-re10: #6e0f19;
+
+  /* Orange */
+  --color-orange-or02: #ffe1d2;
+  --color-orange-or04: #ffaa78;
+  --color-orange-or05: #fa6414;
+  --color-orange-or07: #be4b0f;
+  --color-orange-or10: #7d320a;
+
+  /* Yellow */
+  --color-yellow-ye02: #fff0d2;
+  --color-yellow-ye04: #ffd278;
+  --color-yellow-ye05: #ffb91e;
+  --color-yellow-ye07: #be8c14;
+  --color-yellow-ye10: #825a0f;
+
+  /* Yellow Green */
+  --color-yellowGreen-yg02: #e6f0d2;
+  --color-yellowGreen-yg04: #b4dc7d;
+  --color-yellowGreen-yg05: #82c31e;
+  --color-yellowGreen-yg07: #50961e;
+  --color-yellowGreen-yg10: #3c5f14;
+
+  /* Green */
+  --color-green-gr02: #cdebd7;
+  --color-green-gr04: #64be8c;
+  --color-green-gr05: #00963c;
+  --color-green-gr07: #006e2d;
+  --color-green-gr10: #004b1e;
+
+  /* Blue Green */
+  --color-blueGreen-bg02: #cdf0f0;
+  --color-blueGreen-bg04: #64d2d2;
+  --color-blueGreen-bg05: #00b9b9;
+  --color-blueGreen-bg07: #008c8c;
+  --color-blueGreen-bg10: #146464;
+
+  /* Accent */
+  --color-accent-a01: #dc1e32;
+  --color-accent-a02: #f07882;
+  --color-accent-a03: #a51428;
+
+  /* Semantic */
+  --color-success: #00963c;
+  --color-warning: #ffb91e;
+  --color-danger: #dc1e32;
+  --color-info: #00b9b9;
+
+  /* Text */
+  --color-text-primary: #464343;
+  --color-text-secondary: #6e6b6b;
+  --color-text-light: #aaa7a7;
+
+  /* Border */
+  --color-border: #e1dcdc;
+
+  /* Background */
+  --color-background-main: #ffffff;
+  --color-background-card: #f7f5f5;
+  --color-background-hover: #f0eded;
+}
