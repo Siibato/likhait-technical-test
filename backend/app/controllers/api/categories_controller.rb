@@ -8,12 +8,12 @@ class Api::CategoriesController < ApplicationController
     name = category_params[:name]&.strip
 
     if name.blank?
-      render json: { errors: ["Name can't be blank"] }, status: :unprocessable_entity
+      render json: { errors: [ "Name can't be blank" ] }, status: :unprocessable_entity
       return
     end
 
     if Category.where("LOWER(name) = LOWER(?)", name).exists?
-      render json: { errors: ["Category '#{name}' already exists"] }, status: :unprocessable_entity
+      render json: { errors: [ "Category '#{name}' already exists" ] }, status: :unprocessable_entity
       return
     end
 
