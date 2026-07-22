@@ -3,14 +3,16 @@
  */
 
 import { request } from "./apiClient";
-import { Expense, ExpenseFormData } from "../types";
+import { Expense, ExpenseFormData, PaginatedExpensesResponse } from "../types";
 
 export async function getExpenses(
   year: number,
   month: number,
-): Promise<Expense[]> {
-  return request<Expense[]>("/expenses", {
-    params: { year, month },
+  page: number = 1,
+  perPage: number = 10,
+): Promise<PaginatedExpensesResponse> {
+  return request<PaginatedExpensesResponse>("/expenses", {
+    params: { year, month, page, per_page: perPage },
   });
 }
 

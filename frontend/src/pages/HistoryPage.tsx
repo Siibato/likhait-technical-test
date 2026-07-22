@@ -32,14 +32,18 @@ const HistoryPage: React.FC = () => {
   const initial = getInitialYearMonth();
   const [selectedYear, setSelectedYear] = useState(initial.year);
   const [selectedMonth, setSelectedMonth] = useState(initial.month);
+  const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
   const {
-    data: expenses = [],
+    data: expensesData,
     isLoading,
     error: expensesError,
-  } = useExpenses(selectedYear, selectedMonth);
+  } = useExpenses(selectedYear, selectedMonth, currentPage);
+
+  const expenses = expensesData?.expenses ?? [];
+  const totalPages = expensesData?.meta?.total_pages ?? 1;
   const { data: categories = [] } = useCategories();
   const createExpenseMutation = useCreateExpense();
   const createCategoryMutation = useCreateCategory();
@@ -61,11 +65,13 @@ const HistoryPage: React.FC = () => {
 
   const handleYearChange = (year: number) => {
     setSelectedYear(year);
+    setCurrentPage(1);
   };
 
   const handleMonthChange = (month: number, year: number) => {
     setSelectedYear(year);
     setSelectedMonth(month);
+    setCurrentPage(1);
   };
 
   const handleAddExpense = async (data: ExpenseFormData) => {
@@ -192,6 +198,9 @@ const HistoryPage: React.FC = () => {
               <CalendarExpenseTable
                 expenses={expenses}
                 categories={categories}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
                 onUpdate={handleUpdateExpense}
                 onDelete={handleDeleteExpense}
               />

@@ -1,4 +1,7 @@
 class Api::ExpensesController < ApplicationController
+  DEFAULT_PER_PAGE = 10
+  MAX_PER_PAGE = 100
+
   def index
     expenses = Expense.includes(:category).order(date: :desc, created_at: :desc)
 
@@ -12,7 +15,20 @@ class Api::ExpensesController < ApplicationController
       expenses = expenses.where(date: start_date.beginning_of_day..end_date.end_of_day)
     end
 
-    render json: expenses.map { |expense| format_expense(expense) }
+    page = params[:page].to_i.positive? ? params[:page].to_i : 1
+    per_page = params[:per_page].to_i.clamp(DEFAULT_PER_PAGE, MAX_PER_PAGE)
+
+    pagy, paginated_expenses = pagy(:offset, expenses, page: page, limit: per_page)
+
+    render json: {
+      expenses: paginated_expenses.map { |expense| format_expense(expense) },
+      meta: {
+        current_page: pagy.page,
+        per_page: pagy.limit,
+        total_pages: pagy.pages,
+        total_count: pagy.count
+      }
+    }
   end
 
   def create
