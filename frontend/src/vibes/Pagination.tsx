@@ -3,40 +3,30 @@
  */
 
 import React from "react";
-import { COLORS } from "../constants/colors";
+import styles from "./Pagination.module.css";
 import { Button } from "./Button";
 
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 export function Pagination({
   currentPage,
   totalPages,
   onPageChange,
+  className = "",
+  style,
 }: PaginationProps) {
-  const containerStyle: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "0.5rem",
-    padding: "1rem 0",
-  };
-
-  const pageInfoStyle: React.CSSProperties = {
-    color: COLORS.text.secondary,
-    fontSize: "0.875rem",
-    margin: "0 1rem",
-  };
-
   if (totalPages <= 1) {
     return null;
   }
 
   return (
-    <div style={containerStyle}>
+    <div className={`${styles.container} ${className}`} style={style}>
       <Button
         variant="secondary"
         size="small"
@@ -45,7 +35,7 @@ export function Pagination({
       >
         Previous
       </Button>
-      <span style={pageInfoStyle}>
+      <span className={styles.pageInfo}>
         Page {currentPage} of {totalPages}
       </span>
       <Button

@@ -1,0 +1,50 @@
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.pulse {
+  background: var(--color-secondary-s03);
+  border-radius: 6px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.total {
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--color-secondary-s04);
+  background: var(--color-secondary-s01);
+}
+
+.label { width: 48px; height: 14px; }
+.amount { width: 140px; height: 32px; }
+.count { width: 100px; height: 14px; margin-left: auto; }
+.toggle { width: 32px; height: 32px; border-radius: 6px; flex-shrink: 0; }
+
+.list { padding: 8px; }
+
+.item {
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-secondary-s01);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.itemLeft { display: flex; align-items: center; gap: 16px; }
+
+.itemIcon { width: 48px; height: 48px; border-radius: 10px; }
+.itemName { width: 120px; height: 18px; margin-bottom: 8px; }
+.itemCount { width: 80px; height: 14px; }
+.itemAmount { width: 80px; height: 24px; }

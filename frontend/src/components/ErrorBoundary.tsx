@@ -1,6 +1,6 @@
 import { Component, ErrorInfo, ReactNode } from "react";
 import { Button } from "../vibes";
-import { COLORS } from "../constants/colors";
+import styles from "./ErrorBoundary.module.css";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -32,9 +32,9 @@ export class ErrorBoundary extends Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: "48px", textAlign: "center" }}>
-          <h2 style={{ color: COLORS.red.re05 }}>Something went wrong</h2>
-          <p style={{ color: COLORS.text.secondary }}>
+        <div className={styles.container}>
+          <h2 className={styles.title}>Something went wrong</h2>
+          <p className={styles.message}>
             {this.state.error?.message || "An unexpected error occurred."}
           </p>
           <Button variant="primary" onClick={this.handleReload}>

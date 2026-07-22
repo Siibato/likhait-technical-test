@@ -2,13 +2,12 @@
  * Form component for adding/editing expenses
  */
 
-import React from "react";
 import { ExpenseFormData } from "../types";
 import { TextField, SelectBox, Button } from "../vibes";
 import { useExpenseForm } from "../hooks/useExpenseForm";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { formatDate } from "../utils/expenseUtils";
-import { COLORS } from "../constants/colors";
+import styles from "./ExpenseForm.module.css";
 
 interface ExpenseFormProps {
   categories: Array<{ id: number; name: string }>;
@@ -31,25 +30,13 @@ export function ExpenseForm({
       onSubmit,
     });
 
-  const formStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    gap: "1rem",
-  };
-
-  const buttonGroupStyle: React.CSSProperties = {
-    display: "flex",
-    gap: "0.5rem",
-    marginTop: "0.5rem",
-  };
-
   const categoryOptions = categories.map((category) => ({
     value: category.id.toString(),
     label: category.name,
   }));
 
   return (
-    <form onSubmit={handleSubmit} style={formStyle}>
+    <form onSubmit={handleSubmit} className={styles.form}>
       <TextField
         label="Amount"
         type="number"
@@ -94,13 +81,9 @@ export function ExpenseForm({
         required
       />
 
-      {formError && (
-        <div style={{ color: COLORS.red.re05, fontSize: "0.875rem" }}>
-          {formError}
-        </div>
-      )}
+      {formError && <div className={styles.formError}>{formError}</div>}
 
-      <div style={buttonGroupStyle}>
+      <div className={styles.buttonGroup}>
         <Button
           type="submit"
           variant="primary"

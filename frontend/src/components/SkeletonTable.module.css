@@ -1,0 +1,36 @@
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.bar {
+  background: var(--color-secondary-s03);
+  border-radius: 6px;
+  animation: pulse 1.5s ease-in-out infinite;
+  height: 16px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-background-main);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  margin-top: 32px;
+}
+
+.thead {
+  background-color: var(--color-background-card);
+}
+
+.th {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}

@@ -1,0 +1,135 @@
+.sidebar {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--color-secondary-s04);
+  position: fixed;
+  left: 0;
+  top: 0;
+  transition: width 0.1s ease;
+  background: linear-gradient(180deg, var(--color-primary-p01) 0%, var(--color-primary-p02) 100%);
+}
+
+.expanded {
+  width: 360px;
+}
+
+.collapsed {
+  width: 80px;
+}
+
+.header {
+  padding: 24px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-secondary-s04);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logoIcon {
+  width: 48px;
+  height: 48px;
+  background: var(--color-primary-p07);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: bold;
+  color: white;
+}
+
+.logoText {
+  display: flex;
+  flex-direction: column;
+}
+
+.logoTextCollapsed {
+  display: none;
+}
+
+.logoTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-primary-p09);
+  line-height: 1.2;
+}
+
+.toggleButton {
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-left: 16px;
+  color: var(--color-text-primary);
+}
+
+.toggleButton:hover {
+  background: var(--color-secondary-s02);
+}
+
+.toggleIcon {
+  transition: transform 0.3s ease;
+}
+
+.toggleIconCollapsed {
+  transform: rotate(180deg);
+}
+
+.nav {
+  flex: 1;
+  padding: 16px 0;
+}
+
+.navItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--color-primary-p09);
+  text-align: left;
+  transition: background 0.2s;
+}
+
+.navItem:hover:not(.active) {
+  background: var(--color-primary-p02);
+}
+
+.navItem.active {
+  background: var(--color-primary-p03);
+}
+
+.navItemExpanded {
+  padding: 16px 24px;
+  justify-content: flex-start;
+  gap: 16px;
+}
+
+.navItemCollapsed {
+  padding: 16px;
+  justify-content: center;
+}
+
+.navText {
+  display: inline;
+}
+
+.navTextCollapsed {
+  display: none;
+}

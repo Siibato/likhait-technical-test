@@ -1,7 +1,6 @@
-import React from "react";
-import { COLORS } from "../constants/colors";
 import { Button } from "../vibes";
 import { isApiError, isNetworkError } from "../services/errors";
+import styles from "./ErrorState.module.css";
 
 interface ErrorStateProps {
   error: unknown;
@@ -22,37 +21,11 @@ export function ErrorState({ error, onRetry }: ErrorStateProps) {
     message = error.message;
   }
 
-  const containerStyle: React.CSSProperties = {
-    padding: "48px 24px",
-    textAlign: "center",
-    background: COLORS.background.main,
-    borderRadius: "0.5rem",
-    border: `1px solid ${COLORS.border}`,
-  };
-
-  const iconStyle: React.CSSProperties = {
-    fontSize: "48px",
-    marginBottom: "16px",
-  };
-
-  const titleStyle: React.CSSProperties = {
-    fontSize: "1.25rem",
-    fontWeight: 700,
-    color: COLORS.text.primary,
-    marginBottom: "8px",
-  };
-
-  const messageStyle: React.CSSProperties = {
-    fontSize: "1rem",
-    color: COLORS.text.secondary,
-    marginBottom: "24px",
-  };
-
   return (
-    <div style={containerStyle}>
-      <div style={iconStyle}>⚠️</div>
-      <div style={titleStyle}>{title}</div>
-      <div style={messageStyle}>{message}</div>
+    <div className={styles.container}>
+      <div className={styles.icon}>⚠️</div>
+      <div className={styles.title}>{title}</div>
+      <div className={styles.message}>{message}</div>
       <Button variant="primary" onClick={onRetry}>
         Retry
       </Button>

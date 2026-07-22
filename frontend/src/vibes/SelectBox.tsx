@@ -2,8 +2,8 @@
  * Reusable SelectBox component
  */
 
-import React from "react";
-import { COLORS } from "../constants/colors";
+import { useId } from "react";
+import styles from "./SelectBox.module.css";
 
 interface SelectBoxProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
@@ -17,43 +17,30 @@ export function SelectBox({
   error,
   fullWidth = false,
   options,
+  className = "",
+  style,
+  id,
   ...props
 }: SelectBoxProps) {
-  const containerStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    gap: "0.5rem",
-    width: fullWidth ? "100%" : "auto",
-  };
+  const generatedId = useId();
+  const selectId = id ?? generatedId;
 
-  const labelStyle: React.CSSProperties = {
-    fontSize: "0.875rem",
-    fontWeight: 600,
-    color: COLORS.text.primary,
-  };
+  const containerClasses = [
+    styles.container,
+    fullWidth ? styles["container--fullWidth"] : "",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
-  const selectStyle: React.CSSProperties = {
-    padding: "0.5rem 0.75rem",
-    fontSize: "1rem",
-    border: `1px solid ${error ? COLORS.danger : COLORS.border}`,
-    borderRadius: "0.375rem",
-    outline: "none",
-    transition: "border-color 0.2s",
-    backgroundColor: COLORS.background.main,
-    color: COLORS.text.primary,
-    cursor: "pointer",
-  };
-
-  const errorStyle: React.CSSProperties = {
-    fontSize: "0.75rem",
-    color: COLORS.danger,
-    marginTop: "-0.25rem",
-  };
+  const selectClasses = [styles.select, error ? styles["select--error"] : ""]
+    .filter(Boolean)
+    .join(" ");
 
   return (
-    <div style={containerStyle}>
-      {label && <label style={labelStyle}>{label}</label>}
-      <select style={selectStyle} {...props}>
+    <div className={containerClasses} style={style}>
+      {label && <label htmlFor={selectId} className={styles.label}>{label}</label>}
+      <select id={selectId} className={selectClasses} {...props}>
         <option value="">Select...</option>
         {options.map((option) => (
           <option key={option.value} value={option.value}>
@@ -61,7 +48,7 @@ export function SelectBox({
           </option>
         ))}
       </select>
-      {error && <span style={errorStyle}>{error}</span>}
+      {error && <span className={styles.error}>{error}</span>}
     </div>
   );
 }

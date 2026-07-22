@@ -1,15 +1,12 @@
-/**
- * Calendar expense table component
- */
-
-import React, { useState } from "react";
+import { useState } from "react";
 import { Expense, ExpenseFormData } from "../types";
 import { formatCurrency, formatDate } from "../utils/expenseUtils";
 import { getCategoryEmoji } from "../constants/categoryEmojis";
-import { COLORS } from "../constants/colors";
-import { Button, Modal, Pagination } from "../vibes";
+import { Button, Pagination } from "../vibes";
 import { EmptyState } from "./EmptyState";
-import { ExpenseForm } from "./ExpenseForm";
+import { EditExpenseModal } from "./EditExpenseModal";
+import { DeleteExpenseModal } from "./DeleteExpenseModal";
+import styles from "./CalendarExpenseTable.module.css";
 
 interface CalendarExpenseTableProps {
   expenses: Expense[];
@@ -33,74 +30,14 @@ export function CalendarExpenseTable({
   onAddExpense,
 }: CalendarExpenseTableProps) {
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [deletingExpense, setDeletingExpense] = useState<Expense | null>(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [deleteError, setDeleteError] = useState("");
 
   const handleEdit = (expense: Expense) => {
     setEditingExpense(expense);
-    setIsEditModalOpen(true);
   };
 
   const handleDelete = (expense: Expense) => {
     setDeletingExpense(expense);
-    setDeleteError("");
-    setIsDeleteModalOpen(true);
-  };
-
-  const confirmDelete = async () => {
-    if (!deletingExpense) return;
-    try {
-      setDeleteError("");
-      await onDelete(deletingExpense.id);
-      setIsDeleteModalOpen(false);
-      setDeletingExpense(null);
-    } catch (error) {
-      console.error("Failed to delete expense:", error);
-      setDeleteError(
-        error instanceof Error ? error.message : "Failed to delete expense",
-      );
-    }
-  };
-
-  const handleUpdate = async (data: ExpenseFormData) => {
-    if (!editingExpense) return;
-    await onUpdate(editingExpense.id, data);
-    setIsEditModalOpen(false);
-    setEditingExpense(null);
-  };
-
-  const tableStyle: React.CSSProperties = {
-    width: "100%",
-    borderCollapse: "collapse",
-    backgroundColor: COLORS.background.main,
-    borderRadius: "0.5rem",
-    overflow: "hidden",
-    border: `1px solid ${COLORS.border}`,
-  };
-
-  const theadStyle: React.CSSProperties = {
-    backgroundColor: COLORS.background.card,
-  };
-
-  const thStyle: React.CSSProperties = {
-    padding: "0.75rem",
-    textAlign: "left",
-    fontWeight: 600,
-    color: COLORS.text.primary,
-    borderBottom: `2px solid ${COLORS.border}`,
-  };
-
-  const tdStyle: React.CSSProperties = {
-    padding: "0.75rem",
-    borderBottom: `1px solid ${COLORS.border}`,
-    color: COLORS.text.primary,
-  };
-
-  const actionButtonsStyle: React.CSSProperties = {
-    display: "flex",
-    gap: "0.5rem",
   };
 
   if (expenses.length === 0) {
@@ -116,38 +53,32 @@ export function CalendarExpenseTable({
 
   return (
     <>
-      <table style={tableStyle}>
-        <thead style={theadStyle}>
+      <table className={styles.table}>
+        <thead className={styles.thead}>
           <tr>
-            <th style={thStyle}>Date</th>
-            <th style={thStyle}>Description</th>
-            <th style={thStyle}>Category</th>
-            <th style={thStyle}>Amount</th>
-            <th style={{ ...thStyle, textAlign: "center" }}>Actions</th>
+            <th className={styles.th}>Date</th>
+            <th className={styles.th}>Description</th>
+            <th className={styles.th}>Category</th>
+            <th className={styles.th}>Amount</th>
+            <th className={`${styles.th} ${styles.actionsCell}`}>Actions</th>
           </tr>
         </thead>
         <tbody>
           {expenses.map((expense) => (
             <tr key={expense.id}>
-              <td style={tdStyle}>{formatDate(new Date(expense.date))}</td>
-              <td style={tdStyle}>{expense.description}</td>
-              <td style={tdStyle}>
-                <span
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                  }}
-                >
+              <td className={styles.td}>{formatDate(new Date(expense.date))}</td>
+              <td className={styles.td}>{expense.description}</td>
+              <td className={styles.td}>
+                <span className={styles.categoryCell}>
                   <span>{getCategoryEmoji(expense.category)}</span>
                   <span>{expense.category}</span>
                 </span>
               </td>
-              <td style={{ ...tdStyle, textAlign: "left", fontWeight: 600 }}>
+              <td className={`${styles.td} ${styles.amountCell}`}>
                 {formatCurrency(expense.amount)}
               </td>
-              <td style={{ ...tdStyle, textAlign: "center" }}>
-                <div style={actionButtonsStyle}>
+              <td className={`${styles.td} ${styles.actionsCell}`}>
+                <div className={styles.actionButtons}>
                   <Button
                     variant="secondary"
                     size="small"
@@ -175,81 +106,20 @@ export function CalendarExpenseTable({
         onPageChange={onPageChange}
       />
 
-      <Modal
-        isOpen={isEditModalOpen}
-        onClose={() => {
-          setIsEditModalOpen(false);
-          setEditingExpense(null);
-        }}
-        title="Edit Expense"
-      >
-        {editingExpense && (
-          <ExpenseForm
-            categories={categories}
-            initialData={{
-              amount: editingExpense.amount.toString(),
-              description: editingExpense.description,
-              category_id:
-                categories
-                  .find((c) => c.name === editingExpense.category)
-                  ?.id.toString() ?? "",
-              date: formatDate(new Date(editingExpense.date)),
-            }}
-            onSubmit={handleUpdate}
-            onCancel={() => {
-              setIsEditModalOpen(false);
-              setEditingExpense(null);
-            }}
-            submitLabel="Update Expense"
-          />
-        )}
-      </Modal>
+      <EditExpenseModal
+        expense={editingExpense}
+        isOpen={editingExpense !== null}
+        categories={categories}
+        onClose={() => setEditingExpense(null)}
+        onUpdate={onUpdate}
+      />
 
-      <Modal
-        isOpen={isDeleteModalOpen}
-        onClose={() => {
-          setIsDeleteModalOpen(false);
-          setDeletingExpense(null);
-        }}
-        title="Delete Expense"
-      >
-        <div style={{ padding: "1rem 0" }}>
-          <p style={{ marginBottom: "1.5rem", color: COLORS.text.primary }}>
-            Are you sure you want to delete this expense?
-          </p>
-          {deletingExpense && (
-            <p style={{ marginBottom: "1.5rem", color: COLORS.text.secondary }}>
-              <strong>{deletingExpense.description}</strong> -{" "}
-              {formatCurrency(deletingExpense.amount)}
-            </p>
-          )}
-          {deleteError && (
-            <p style={{ color: COLORS.red.re05, marginBottom: "1.5rem" }}>
-              {deleteError}
-            </p>
-          )}
-          <div
-            style={{
-              display: "flex",
-              gap: "0.5rem",
-              justifyContent: "flex-end",
-            }}
-          >
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setIsDeleteModalOpen(false);
-                setDeletingExpense(null);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button variant="danger" onClick={confirmDelete}>
-              Delete
-            </Button>
-          </div>
-        </div>
-      </Modal>
+      <DeleteExpenseModal
+        expense={deletingExpense}
+        isOpen={deletingExpense !== null}
+        onClose={() => setDeletingExpense(null)}
+        onDelete={onDelete}
+      />
     </>
   );
 }

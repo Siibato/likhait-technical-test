@@ -2,9 +2,10 @@
  * Form component for adding a new category
  */
 
-import React, { useState } from "react";
+import { useState, FormEvent } from "react";
 import { TextField, Button } from "../vibes";
 import { LoadingSpinner } from "./LoadingSpinner";
+import styles from "./CategoryForm.module.css";
 
 interface CategoryFormProps {
   onSubmit: (name: string) => Promise<void>;
@@ -16,7 +17,7 @@ export function CategoryForm({ onSubmit, onCancel }: CategoryFormProps) {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
     const trimmed = name.trim();
@@ -27,30 +28,16 @@ export function CategoryForm({ onSubmit, onCancel }: CategoryFormProps) {
 
     setError("");
     setIsSubmitting(true);
-    try {
-      await onSubmit(trimmed);
-      setName("");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create category");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const formStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    gap: "1rem",
-  };
-
-  const buttonGroupStyle: React.CSSProperties = {
-    display: "flex",
-    gap: "0.5rem",
-    marginTop: "0.5rem",
+    onSubmit(trimmed)
+      .then(() => setName(""))
+      .catch((err) =>
+        setError(err instanceof Error ? err.message : "Failed to create category"),
+      )
+      .finally(() => setIsSubmitting(false));
   };
 
   return (
-    <form onSubmit={handleSubmit} style={formStyle}>
+    <form onSubmit={handleSubmit} className={styles.form}>
       <TextField
         label="Category Name"
         type="text"
@@ -65,7 +52,7 @@ export function CategoryForm({ onSubmit, onCancel }: CategoryFormProps) {
         required
       />
 
-      <div style={buttonGroupStyle}>
+      <div className={styles.buttonGroup}>
         <Button
           type="submit"
           variant="primary"

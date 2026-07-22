@@ -3,13 +3,15 @@
  */
 
 import React from "react";
-import { COLORS } from "../constants/colors";
+import styles from "./ColumnBase.module.css";
 
 interface ColumnBaseProps {
   children: React.ReactNode;
   align?: "left" | "center" | "right";
   width?: string;
   isHeader?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 export function ColumnBase({
@@ -17,18 +19,19 @@ export function ColumnBase({
   align = "left",
   width,
   isHeader = false,
+  className = "",
+  style,
 }: ColumnBaseProps) {
-  const style: React.CSSProperties = {
-    padding: "0.75rem",
-    textAlign: align,
-    width,
-    fontWeight: isHeader ? 600 : 400,
-    color: isHeader ? COLORS.text.primary : COLORS.text.primary,
-    backgroundColor: isHeader ? COLORS.background.card : "transparent",
-    borderBottom: `1px solid ${COLORS.border}`,
-  };
+  const classes = [
+    styles.columnBase,
+    isHeader ? styles["columnBase--header"] : "",
+    styles[`align-${align}`],
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const Tag = isHeader ? "th" : "td";
 
-  return <Tag style={style}>{children}</Tag>;
+  return <Tag className={classes} style={{ ...style, width }}>{children}</Tag>;
 }
