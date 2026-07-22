@@ -9,12 +9,12 @@ import { getCategoryEmoji } from "../constants/categoryEmojis";
 import { COLORS } from "../constants/colors";
 import { Button, Modal, Pagination } from "../vibes";
 import { ExpenseForm } from "./ExpenseForm.tsx";
-import { deleteExpense, updateExpense } from "../services/api";
 
 interface CalendarExpenseTableProps {
   expenses: Expense[];
   categories: Array<{ id: number; name: string }>;
-  onExpenseUpdated: () => void;
+  onUpdate: (id: number, data: ExpenseFormData) => Promise<void>;
+  onDelete: (id: number) => Promise<void>;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -22,13 +22,15 @@ const ITEMS_PER_PAGE = 10;
 export function CalendarExpenseTable({
   expenses,
   categories,
-  onExpenseUpdated,
+  onUpdate,
+  onDelete,
 }: CalendarExpenseTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [deletingExpense, setDeletingExpense] = useState<Expense | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   const totalPages = Math.ceil(expenses.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -42,33 +44,30 @@ export function CalendarExpenseTable({
 
   const handleDelete = (expense: Expense) => {
     setDeletingExpense(expense);
+    setDeleteError("");
     setIsDeleteModalOpen(true);
   };
 
   const confirmDelete = async () => {
     if (!deletingExpense) return;
     try {
-      await deleteExpense(deletingExpense.id);
+      setDeleteError("");
+      await onDelete(deletingExpense.id);
       setIsDeleteModalOpen(false);
       setDeletingExpense(null);
-      onExpenseUpdated();
     } catch (error) {
       console.error("Failed to delete expense:", error);
-      alert("Failed to delete expense");
+      setDeleteError(
+        error instanceof Error ? error.message : "Failed to delete expense",
+      );
     }
   };
 
   const handleUpdate = async (data: ExpenseFormData) => {
     if (!editingExpense) return;
-    try {
-      await updateExpense(editingExpense.id, data);
-      setIsEditModalOpen(false);
-      setEditingExpense(null);
-      onExpenseUpdated();
-    } catch (error) {
-      console.error("Failed to update expense:", error);
-      throw error;
-    }
+    await onUpdate(editingExpense.id, data);
+    setIsEditModalOpen(false);
+    setEditingExpense(null);
   };
 
   const tableStyle: React.CSSProperties = {
@@ -194,7 +193,10 @@ export function CalendarExpenseTable({
             initialData={{
               amount: editingExpense.amount.toString(),
               description: editingExpense.description,
-              category: editingExpense.category,
+              category_id:
+                categories
+                  .find((c) => c.name === editingExpense.category)
+                  ?.id.toString() ?? "",
               date: formatDate(new Date(editingExpense.date)),
             }}
             onSubmit={handleUpdate}
@@ -223,6 +225,11 @@ export function CalendarExpenseTable({
             <p style={{ marginBottom: "1.5rem", color: COLORS.text.secondary }}>
               <strong>{deletingExpense.description}</strong> -{" "}
               {formatCurrency(deletingExpense.amount)}
+            </p>
+          )}
+          {deleteError && (
+            <p style={{ color: COLORS.red.re05, marginBottom: "1.5rem" }}>
+              {deleteError}
             </p>
           )}
           <div

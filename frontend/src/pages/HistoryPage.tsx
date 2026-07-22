@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react";
-import {
-  getExpenses,
-  createExpense,
-  fetchCategories,
-  createCategory,
-} from "../services/api";
-import { Expense, ExpenseFormData } from "../types";
+import React, { useState, useEffect } from "react";
+import { useExpenses } from "../hooks/useExpenses";
+import { useCategories } from "../hooks/useCategories";
+import { useCreateExpense } from "../hooks/useCreateExpense";
+import { useCreateCategory } from "../hooks/useCreateCategory";
+import { useUpdateExpense } from "../hooks/useUpdateExpense";
+import { useDeleteExpense } from "../hooks/useDeleteExpense";
+import { ExpenseFormData } from "../types";
 import YearNavigation from "../components/YearNavigation";
 import { MonthNavigation } from "../components/MonthNavigation";
 import CategoryBreakdown from "../components/CategoryBreakdown";
@@ -16,12 +16,6 @@ import { Modal, Button } from "../vibes";
 import { COLORS } from "../constants/colors";
 
 const HistoryPage: React.FC = () => {
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [categories, setCategories] = useState<Array<{ id: number; name: string }>>([]);
-
   // Get year and month from URL params, default to current date if not provided
   const getInitialYearMonth = () => {
     const params = new URLSearchParams(window.location.search);
@@ -38,6 +32,19 @@ const HistoryPage: React.FC = () => {
   const initial = getInitialYearMonth();
   const [selectedYear, setSelectedYear] = useState(initial.year);
   const [selectedMonth, setSelectedMonth] = useState(initial.month);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+
+  const {
+    data: expenses = [],
+    isLoading,
+    error: expensesError,
+  } = useExpenses(selectedYear, selectedMonth);
+  const { data: categories = [] } = useCategories();
+  const createExpenseMutation = useCreateExpense();
+  const createCategoryMutation = useCreateCategory();
+  const updateExpenseMutation = useUpdateExpense();
+  const deleteExpenseMutation = useDeleteExpense();
 
   // Update URL when year or month changes
   const updateURL = (year: number, month: number) => {
@@ -48,70 +55,35 @@ const HistoryPage: React.FC = () => {
     window.history.pushState({}, "", newURL);
   };
 
-  // Initialize URL params if not present
   useEffect(() => {
     updateURL(selectedYear, selectedMonth);
-  }, []);
-
-  useEffect(() => {
-    fetchExpenses();
   }, [selectedYear, selectedMonth]);
-
-  const fetchExpenses = async () => {
-    try {
-      setLoading(true);
-      const data = await getExpenses(selectedYear, selectedMonth);
-      setExpenses(data);
-    } catch (error) {
-      console.error("Error fetching expenses:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleYearChange = (year: number) => {
     setSelectedYear(year);
-    updateURL(year, selectedMonth);
   };
 
-  const handleMonthChange = (month: number) => {
+  const handleMonthChange = (month: number, year: number) => {
+    setSelectedYear(year);
     setSelectedMonth(month);
-    updateURL(selectedYear, month);
   };
-
-  const loadCategories = useCallback(async () => {
-    try {
-      const data = await fetchCategories();
-      setCategories(data);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadCategories();
-  }, [loadCategories]);
 
   const handleAddExpense = async (data: ExpenseFormData) => {
-    try {
-      await createExpense(data);
-      setIsModalOpen(false);
-      fetchExpenses();
-    } catch (error) {
-      console.error("Error creating expense:", error);
-      throw error;
-    }
+    await createExpenseMutation.mutateAsync(data);
+    setIsModalOpen(false);
   };
 
   const handleAddCategory = async (name: string) => {
-    try {
-      await createCategory(name);
-      setIsCategoryModalOpen(false);
-      await loadCategories();
-    } catch (error) {
-      console.error("Error creating category:", error);
-      throw error;
-    }
+    await createCategoryMutation.mutateAsync(name);
+    setIsCategoryModalOpen(false);
+  };
+
+  const handleUpdateExpense = async (id: number, data: ExpenseFormData) => {
+    await updateExpenseMutation.mutateAsync({ id, data });
+  };
+
+  const handleDeleteExpense = async (id: number) => {
+    await deleteExpenseMutation.mutateAsync(id);
   };
 
   // Calculate category breakdown
@@ -203,8 +175,12 @@ const HistoryPage: React.FC = () => {
       />
 
       <div>
-        {loading ? (
+        {isLoading ? (
           <div style={loadingStyle}>Loading...</div>
+        ) : expensesError ? (
+          <div style={loadingStyle}>
+            Error loading expenses: {expensesError.message}
+          </div>
         ) : (
           <>
             <CategoryBreakdown
@@ -216,7 +192,8 @@ const HistoryPage: React.FC = () => {
               <CalendarExpenseTable
                 expenses={expenses}
                 categories={categories}
-                onExpenseUpdated={fetchExpenses}
+                onUpdate={handleUpdateExpense}
+                onDelete={handleDeleteExpense}
               />
             </div>
           </>

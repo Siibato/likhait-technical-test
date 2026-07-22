@@ -1,136 +1,75 @@
 /**
- * API service for communicating with the backend
+ * API service functions for communicating with the backend.
  */
 
+import { request } from "./apiClient";
 import { Expense, ExpenseFormData } from "../types";
 
-const API_BASE_URL = "http://localhost:3000/api";
-
-/**
- * Fetch all expenses
- */
-export async function fetchExpenses(): Promise<Expense[]> {
-  const response = await fetch(`${API_BASE_URL}/expenses`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch expenses");
-  }
-  return response.json();
-}
-
-/**
- * Fetch expenses for a specific year and month
- */
 export async function getExpenses(
   year: number,
   month: number,
 ): Promise<Expense[]> {
-  const response = await fetch(
-    `${API_BASE_URL}/expenses?year=${year}&month=${month}`,
-  );
-  if (!response.ok) {
-    throw new Error("Failed to fetch expenses");
-  }
-  return response.json();
+  return request<Expense[]>("/expenses", {
+    params: { year, month },
+  });
 }
 
-/**
- * Fetch all categories
- */
 export async function fetchCategories(): Promise<
   Array<{ id: number; name: string }>
 > {
-  const response = await fetch(`${API_BASE_URL}/categories`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch categories");
-  }
-  return response.json();
+  return request<Array<{ id: number; name: string }>>("/categories");
 }
 
-/**
- * Create a new category
- */
-export async function createCategory(name: string): Promise<{ id: number; name: string }> {
-  const response = await fetch(`${API_BASE_URL}/categories`, {
+export async function createCategory(
+  name: string,
+): Promise<{ id: number; name: string }> {
+  return request<{ id: number; name: string }>("/categories", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify({ category: { name } }),
   });
-
-  if (!response.ok) {
-    const body = await response.json().catch(() => ({} as { errors?: string[] }));
-    const message =
-      Array.isArray(body.errors) && body.errors.length > 0
-        ? body.errors.join(". ")
-        : "Failed to create category";
-    throw new Error(message);
-  }
-
-  return response.json();
 }
 
-/**
- * Create a new expense
- */
 export async function createExpense(data: ExpenseFormData): Promise<Expense> {
-  // Convert category name to category_id
-  const categories = await fetchCategories();
-  const category = categories.find((c) => c.name === data.category);
-
   const expenseData = {
     description: data.description,
-    amount: data.amount,
-    category_id: category?.id,
+    amount: Number(data.amount),
+    category_id: Number(data.category_id),
     date: data.date,
   };
 
-  const response = await fetch(`${API_BASE_URL}/expenses`, {
+  return request<Expense>("/expenses", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify({ expense: expenseData }),
   });
-
-  if (!response.ok) {
-    throw new Error("Failed to create expense");
-  }
-
-  return response.json();
 }
 
-/**
- * Update an existing expense
- */
 export async function updateExpense(
   id: number,
   data: Partial<ExpenseFormData>,
 ): Promise<Expense> {
-  const response = await fetch(`${API_BASE_URL}/expenses/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ expense: data }),
-  });
+  const expenseData: Record<string, unknown> = {};
 
-  if (!response.ok) {
-    throw new Error("Failed to update expense");
+  if (data.description !== undefined) {
+    expenseData.description = data.description;
+  }
+  if (data.amount !== undefined) {
+    expenseData.amount = Number(data.amount);
+  }
+  if (data.category_id !== undefined) {
+    expenseData.category_id = Number(data.category_id);
+  }
+  if (data.date !== undefined) {
+    expenseData.date = data.date;
   }
 
-  return response.json();
+  return request<Expense>(`/expenses/${id}`, {
+    method: "PUT",
+    body: JSON.stringify({ expense: expenseData }),
+  });
 }
 
-/**
- * Delete an expense
- */
 export async function deleteExpense(id: number): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/expenses/${id}`, {
+  return request<void>(`/expenses/${id}`, {
     method: "DELETE",
   });
-
-  if (!response.ok) {
-    throw new Error("Failed to delete expense");
-  }
 }
