@@ -23,10 +23,7 @@ export function EditExpenseModal({
   const initialData = {
     amount: expense.amount.toString(),
     description: expense.description,
-    category_id:
-      categories
-        .find((c) => c.name === expense.category)
-        ?.id.toString() ?? "",
+    category_id: expense.category_id.toString(),
     date: formatDate(new Date(expense.date)),
   };
 

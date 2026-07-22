@@ -38,7 +38,7 @@ export function useExpenseForm({ initialData, onSubmit }: UseExpenseFormProps) {
   const validateForm = (): boolean => {
     const newErrors: Partial<ExpenseFormData> = {};
 
-    if (!formData.amount || Number(formData.amount) <= 0) {
+    if (!formData.amount || Number.isNaN(Number(formData.amount)) || Number(formData.amount) <= 0) {
       newErrors.amount = "Amount must be greater than 0";
     }
 

@@ -16,7 +16,7 @@ RSpec.describe Category, type: :model do
       FactoryBot.create(:category, name: 'Food')
       duplicate = FactoryBot.build(:category, name: 'food')
       expect(duplicate).not_to be_valid
-      expect(duplicate.errors[:name]).to include('has already been taken')
+      expect(duplicate.errors[:name]).to include("Category 'food' already exists")
     end
   end
 end
