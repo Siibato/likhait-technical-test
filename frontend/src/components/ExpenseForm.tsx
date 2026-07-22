@@ -7,6 +7,7 @@ import { ExpenseFormData } from "../types";
 import { TextField, SelectBox, Button } from "../vibes";
 import { useExpenseForm } from "../hooks/useExpenseForm";
 import { formatDate } from "../utils/expenseUtils";
+import { COLORS } from "../constants/colors";
 
 interface ExpenseFormProps {
   categories: Array<{ id: number; name: string }>;
@@ -23,7 +24,7 @@ export function ExpenseForm({
   onCancel,
   submitLabel = "Add Expense",
 }: ExpenseFormProps) {
-  const { formData, errors, isSubmitting, handleChange, handleSubmit } =
+  const { formData, errors, formError, isSubmitting, handleChange, handleSubmit } =
     useExpenseForm({
       initialData,
       onSubmit,
@@ -42,7 +43,7 @@ export function ExpenseForm({
   };
 
   const categoryOptions = categories.map((category) => ({
-    value: category.name,
+    value: category.id.toString(),
     label: category.name,
   }));
 
@@ -74,9 +75,9 @@ export function ExpenseForm({
       <SelectBox
         label="Category"
         options={categoryOptions}
-        value={formData.category}
-        onChange={(e) => handleChange("category", e.target.value)}
-        error={errors.category}
+        value={formData.category_id}
+        onChange={(e) => handleChange("category_id", e.target.value)}
+        error={errors.category_id}
         fullWidth
         required
       />
@@ -91,6 +92,12 @@ export function ExpenseForm({
         fullWidth
         required
       />
+
+      {formError && (
+        <div style={{ color: COLORS.red.re05, fontSize: "0.875rem" }}>
+          {formError}
+        </div>
+      )}
 
       <div style={buttonGroupStyle}>
         <Button
