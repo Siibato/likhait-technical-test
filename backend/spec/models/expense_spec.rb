@@ -18,4 +18,28 @@ RSpec.describe Expense, type: :model do
     expect(expense).not_to be_valid
     expect(expense.errors[:date]).to include("cannot be in the future")
   end
+
+  it "is invalid with a non-positive amount" do
+    expense = Expense.new(description: "Lunch", amount: -10.00, category: category, date: Date.today)
+    expect(expense).not_to be_valid
+    expect(expense.errors[:amount]).to include("must be greater than 0")
+  end
+
+  it "is invalid with a zero amount" do
+    expense = Expense.new(description: "Lunch", amount: 0, category: category, date: Date.today)
+    expect(expense).not_to be_valid
+    expect(expense.errors[:amount]).to include("must be greater than 0")
+  end
+
+  it "is invalid with a blank description" do
+    expense = Expense.new(description: "", amount: 10.00, category: category, date: Date.today)
+    expect(expense).not_to be_valid
+    expect(expense.errors[:description]).to include("can't be blank")
+  end
+
+  it "is invalid with a whitespace-only description" do
+    expense = Expense.new(description: "   ", amount: 10.00, category: category, date: Date.today)
+    expect(expense).not_to be_valid
+    expect(expense.errors[:description]).to include("can't be blank")
+  end
 end

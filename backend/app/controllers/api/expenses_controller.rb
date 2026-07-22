@@ -1,4 +1,7 @@
 class Api::ExpensesController < ApplicationController
+  DEFAULT_PER_PAGE = 10
+  MAX_PER_PAGE = 100
+
   def index
     expenses = Expense.includes(:category).order(date: :desc, created_at: :desc)
 
@@ -12,14 +15,27 @@ class Api::ExpensesController < ApplicationController
       expenses = expenses.where(date: start_date.beginning_of_day..end_date.end_of_day)
     end
 
-    render json: expenses.map { |expense| format_expense(expense) }
+    page = params[:page].to_i.positive? ? params[:page].to_i : 1
+    per_page = params[:per_page].to_i.clamp(DEFAULT_PER_PAGE, MAX_PER_PAGE)
+
+    pagy, paginated_expenses = pagy(:offset, expenses, page: page, limit: per_page)
+
+    render json: {
+      expenses: paginated_expenses.map { |expense| ExpenseSerializer.new(expense).as_json },
+      meta: {
+        current_page: pagy.page,
+        per_page: pagy.limit,
+        total_pages: pagy.pages,
+        total_count: pagy.count
+      }
+    }
   end
 
   def create
     expense = Expense.new(expense_params)
 
     if expense.save
-      render json: format_expense(expense), status: :created
+      render json: ExpenseSerializer.new(expense).as_json, status: :created
     else
       render json: { errors: expense.errors.full_messages }, status: :unprocessable_entity
     end
@@ -29,7 +45,7 @@ class Api::ExpensesController < ApplicationController
     expense = Expense.find(params[:id])
 
     if expense.update(expense_params)
-      render json: format_expense(expense)
+      render json: ExpenseSerializer.new(expense).as_json
     else
       render json: { errors: expense.errors.full_messages }, status: :unprocessable_entity
     end
@@ -45,17 +61,5 @@ class Api::ExpensesController < ApplicationController
 
   def expense_params
     params.require(:expense).permit(:description, :amount, :category_id, :date)
-  end
-
-  def format_expense(expense)
-    {
-      id: expense.id,
-      description: expense.description,
-      amount: expense.amount.to_f,
-      category: expense.category.name,
-      date: expense.date.to_s,
-      created_at: expense.created_at,
-      updated_at: expense.updated_at
-    }
   end
 end

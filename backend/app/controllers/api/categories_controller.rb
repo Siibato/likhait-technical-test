@@ -5,20 +5,19 @@ class Api::CategoriesController < ApplicationController
   end
 
   def create
-    name = category_params[:name]&.strip
+    name = category_params[:name]
 
     if name.blank?
-      render json: { errors: ["Name can't be blank"] }, status: :unprocessable_entity
+      render json: { errors: [ "Name can't be blank" ] }, status: :unprocessable_entity
       return
     end
 
     if Category.where("LOWER(name) = LOWER(?)", name).exists?
-      render json: { errors: ["Category '#{name}' already exists"] }, status: :unprocessable_entity
+      render json: { errors: [ "Category '#{name.strip}' already exists" ] }, status: :unprocessable_entity
       return
     end
 
     category = Category.new(category_params)
-    category.name = name
 
     if category.save
       render json: category, status: :created

@@ -42,3 +42,15 @@ export interface DayExpenses {
   expenses: Expense[];
   total: number;
 }
+
+export interface PaginationMeta {
+  current_page: number;
+  per_page: number;
+  total_pages: number;
+  total_count: number;
+}
+
+export interface PaginatedExpensesResponse {
+  expenses: Expense[];
+  meta: PaginationMeta;
+}
