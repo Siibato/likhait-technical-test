@@ -8,7 +8,8 @@ import { formatCurrency, formatDate } from "../utils/expenseUtils";
 import { getCategoryEmoji } from "../constants/categoryEmojis";
 import { COLORS } from "../constants/colors";
 import { Button, Modal, Pagination } from "../vibes";
-import { ExpenseForm } from "./ExpenseForm.tsx";
+import { EmptyState } from "./EmptyState";
+import { ExpenseForm } from "./ExpenseForm";
 
 interface CalendarExpenseTableProps {
   expenses: Expense[];
@@ -18,6 +19,7 @@ interface CalendarExpenseTableProps {
   onPageChange: (page: number) => void;
   onUpdate: (id: number, data: ExpenseFormData) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
+  onAddExpense?: () => void;
 }
 
 export function CalendarExpenseTable({
@@ -28,6 +30,7 @@ export function CalendarExpenseTable({
   onPageChange,
   onUpdate,
   onDelete,
+  onAddExpense,
 }: CalendarExpenseTableProps) {
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -95,12 +98,6 @@ export function CalendarExpenseTable({
     color: COLORS.text.primary,
   };
 
-  const emptyStyle: React.CSSProperties = {
-    padding: "2rem",
-    textAlign: "center",
-    color: COLORS.text.secondary,
-  };
-
   const actionButtonsStyle: React.CSSProperties = {
     display: "flex",
     gap: "0.5rem",
@@ -108,11 +105,12 @@ export function CalendarExpenseTable({
 
   if (expenses.length === 0) {
     return (
-      <div style={tableStyle}>
-        <div style={emptyStyle}>
-          No expenses found. Add your first expense to get started!
-        </div>
-      </div>
+      <EmptyState
+        title="No expenses found"
+        message="Add your first expense to get started!"
+        actionLabel="Add Expense"
+        onAction={onAddExpense}
+      />
     );
   }
 

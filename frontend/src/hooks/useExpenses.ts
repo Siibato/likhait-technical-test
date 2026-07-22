@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getExpenses } from "../services/api";
+import { isNetworkError } from "../services/errors";
 
 export const EXPENSES_QUERY_KEY = "expenses" as const;
 
@@ -14,5 +15,6 @@ export function useExpenses(
   return useQuery({
     queryKey: [EXPENSES_QUERY_KEY, year, month, page, perPage],
     queryFn: () => getExpenses(year, month, page, perPage),
+    retry: (failureCount, error) => isNetworkError(error) && failureCount < 1,
   });
 }

@@ -12,6 +12,9 @@ import CategoryBreakdown from "../components/CategoryBreakdown";
 import { CalendarExpenseTable } from "../components/CalendarExpenseTable";
 import { ExpenseForm } from "../components/ExpenseForm";
 import { CategoryForm } from "../components/CategoryForm";
+import { SkeletonSummary } from "../components/SkeletonSummary";
+import { SkeletonTable } from "../components/SkeletonTable";
+import { ErrorState } from "../components/ErrorState";
 import { Modal, Button } from "../vibes";
 import { COLORS } from "../constants/colors";
 
@@ -40,6 +43,7 @@ const HistoryPage: React.FC = () => {
     data: expensesData,
     isLoading,
     error: expensesError,
+    refetch,
   } = useExpenses(selectedYear, selectedMonth, currentPage);
 
   const expenses = expensesData?.expenses ?? [];
@@ -145,15 +149,6 @@ const HistoryPage: React.FC = () => {
     gap: "12px",
   };
 
-  const loadingStyle: React.CSSProperties = {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: "48px",
-    fontSize: "18px",
-    color: COLORS.secondary.s08,
-  };
-
   return (
     <div style={pageStyle}>
       <div style={headerStyle}>
@@ -182,11 +177,12 @@ const HistoryPage: React.FC = () => {
 
       <div>
         {isLoading ? (
-          <div style={loadingStyle}>Loading...</div>
+          <>
+            <SkeletonSummary />
+            <SkeletonTable />
+          </>
         ) : expensesError ? (
-          <div style={loadingStyle}>
-            Error loading expenses: {expensesError.message}
-          </div>
+          <ErrorState error={expensesError} onRetry={() => refetch()} />
         ) : (
           <>
             <CategoryBreakdown
@@ -203,6 +199,7 @@ const HistoryPage: React.FC = () => {
                 onPageChange={setCurrentPage}
                 onUpdate={handleUpdateExpense}
                 onDelete={handleDeleteExpense}
+                onAddExpense={() => setIsModalOpen(true)}
               />
             </div>
           </>

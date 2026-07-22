@@ -6,6 +6,7 @@ import React from "react";
 import { ExpenseFormData } from "../types";
 import { TextField, SelectBox, Button } from "../vibes";
 import { useExpenseForm } from "../hooks/useExpenseForm";
+import { LoadingSpinner } from "./LoadingSpinner";
 import { formatDate } from "../utils/expenseUtils";
 import { COLORS } from "../constants/colors";
 
@@ -106,7 +107,14 @@ export function ExpenseForm({
           disabled={isSubmitting}
           fullWidth
         >
-          {isSubmitting ? "Submitting..." : submitLabel}
+          {isSubmitting ? (
+            <>
+              <LoadingSpinner size="small" />
+              <span>Saving...</span>
+            </>
+          ) : (
+            submitLabel
+          )}
         </Button>
         {onCancel && (
           <Button

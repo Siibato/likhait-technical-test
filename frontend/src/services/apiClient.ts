@@ -3,7 +3,7 @@
  * sets JSON headers, and throws typed ApiError instances.
  */
 
-import { ApiError } from "./errors";
+import { ApiError, NetworkError } from "./errors";
 
 const API_BASE_URL =
   (import.meta.env?.VITE_API_URL as string | undefined) ??
@@ -28,14 +28,19 @@ export async function request<T>(
     });
   }
 
-  const response = await fetch(url.toString(), {
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      ...(init.headers as Record<string, string> | undefined),
-    },
-    ...init,
-  });
+  let response: Response;
+  try {
+    response = await fetch(url.toString(), {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        ...(init.headers as Record<string, string> | undefined),
+      },
+      ...init,
+    });
+  } catch {
+    throw new NetworkError();
+  }
 
   if (!response.ok) {
     const body = await response

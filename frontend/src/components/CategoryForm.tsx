@@ -4,6 +4,7 @@
 
 import React, { useState } from "react";
 import { TextField, Button } from "../vibes";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 interface CategoryFormProps {
   onSubmit: (name: string) => Promise<void>;
@@ -71,7 +72,14 @@ export function CategoryForm({ onSubmit, onCancel }: CategoryFormProps) {
           disabled={isSubmitting}
           fullWidth
         >
-          {isSubmitting ? "Creating..." : "Add Category"}
+          {isSubmitting ? (
+            <>
+              <LoadingSpinner size="small" />
+              <span>Creating...</span>
+            </>
+          ) : (
+            "Add Category"
+          )}
         </Button>
         <Button
           type="button"
