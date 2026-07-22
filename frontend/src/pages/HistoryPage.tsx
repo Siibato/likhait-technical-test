@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useExpenses } from "../hooks/useExpenses";
 import { useCategories } from "../hooks/useCategories";
 import { useCreateExpense } from "../hooks/useCreateExpense";
@@ -101,29 +101,10 @@ const HistoryPage: React.FC = () => {
     [deleteExpenseMutation],
   );
 
-  // Calculate category breakdown
-  const { categoriesSummary, total, totalCount } = useMemo(() => {
-    const categoryData = expenses.reduce(
-      (acc, expense) => {
-        const category = expense.category || "Uncategorized";
-        if (!acc[category]) {
-          acc[category] = { category, amount: 0, count: 0 };
-        }
-        acc[category].amount += Number(expense.amount);
-        acc[category].count += 1;
-        return acc;
-      },
-      {} as Record<string, { category: string; amount: number; count: number }>,
-    );
-
-    const categoriesSummary = Object.values(categoryData).sort(
-      (a, b) => b.amount - a.amount,
-    );
-    const total = categoriesSummary.reduce((sum, cat) => sum + cat.amount, 0);
-    const totalCount = categoriesSummary.reduce((sum, cat) => sum + cat.count, 0);
-
-    return { categoriesSummary, total, totalCount };
-  }, [expenses]);
+  const monthSummary = expensesData?.meta?.summary;
+  const categoriesSummary = monthSummary?.categories ?? [];
+  const total = monthSummary?.total_amount ?? 0;
+  const totalCount = monthSummary?.total_count ?? 0;
 
   return (
     <div className={styles.page}>

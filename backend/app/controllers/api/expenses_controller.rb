@@ -31,7 +31,8 @@ class Api::ExpensesController < ApplicationController
         current_page: pagy.page,
         per_page: pagy.limit,
         total_pages: pagy.pages,
-        total_count: pagy.count
+        total_count: pagy.count,
+        summary: build_summary(expenses)
       }
     }
   end
@@ -63,6 +64,25 @@ class Api::ExpensesController < ApplicationController
   end
 
   private
+
+  def build_summary(expenses)
+    base = expenses.reorder(nil)
+    total_amount = base.sum(:amount).to_f
+    total_count = base.count
+
+    categories = base
+      .joins(:category)
+      .group("categories.name")
+      .order(Arel.sql("SUM(expenses.amount) DESC"))
+      .pluck("categories.name", Arel.sql("SUM(expenses.amount)"), Arel.sql("COUNT(*)"))
+      .map { |name, amount, count| { category: name, amount: amount.to_f, count: count } }
+
+    {
+      total_amount: total_amount,
+      total_count: total_count,
+      categories: categories
+    }
+  end
 
   def expense_params
     params.require(:expense).permit(:description, :amount, :category_id, :date)

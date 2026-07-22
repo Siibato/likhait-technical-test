@@ -36,6 +36,11 @@ describe("api service", () => {
             per_page: 10,
             total_pages: 1,
             total_count: 0,
+            summary: {
+              total_amount: 0,
+              total_count: 0,
+              categories: [],
+            },
           },
         }),
       }),

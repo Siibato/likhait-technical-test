@@ -44,11 +44,24 @@ export interface DayExpenses {
   total: number;
 }
 
+export interface CategorySummary {
+  category: string;
+  amount: number;
+  count: number;
+}
+
+export interface MonthSummary {
+  total_amount: number;
+  total_count: number;
+  categories: CategorySummary[];
+}
+
 export interface PaginationMeta {
   current_page: number;
   per_page: number;
   total_pages: number;
   total_count: number;
+  summary: MonthSummary;
 }
 
 export interface PaginatedExpensesResponse {

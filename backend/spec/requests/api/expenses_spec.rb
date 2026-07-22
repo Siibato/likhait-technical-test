@@ -59,6 +59,25 @@ RSpec.describe "Api::Expenses", type: :request do
       expect(json["meta"]["current_page"]).to eq(1)
       expect(json["meta"]["per_page"]).to eq(10)
     end
+
+    it "returns a full-month summary regardless of the current page" do
+      Expense.create!(description: "Breakfast", amount: 10.00, category: food_category, date: Date.today)
+      Expense.create!(description: "Snack", amount: 5.00, category: food_category, date: Date.today)
+      Expense.create!(description: "Bus", amount: 20.00, category: transport_category, date: Date.today)
+
+      get "/api/expenses", params: { page: 1, per_page: 1, year: Date.today.year, month: Date.today.month }
+
+      json = JSON.parse(response.body)
+      summary = json["meta"]["summary"]
+      expect(summary["total_amount"]).to eq(185.0) # 100 + 50 + 10 + 5 + 20
+      expect(summary["total_count"]).to eq(5)
+      expect(summary["categories"].map { |c| c["category"] }).to contain_exactly("Food", "Transport")
+      expect(summary["categories"].first["category"]).to eq("Food")
+      expect(summary["categories"].first["amount"]).to eq(115.0)
+      expect(summary["categories"].first["count"]).to eq(3)
+      expect(summary["categories"].last["category"]).to eq("Transport")
+      expect(summary["categories"].last["amount"]).to eq(70.0)
+    end
   end
 
   describe "POST /api/expenses" do
