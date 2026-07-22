@@ -1,12 +1,12 @@
-FROM node:18-alpine
+FROM node:22-alpine
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy only package.json so npm resolves the correct native optional deps
+COPY package.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies without the host's platform-specific lockfile
+RUN npm install --package-lock=false
 
 # Copy the rest of the application
 COPY . .

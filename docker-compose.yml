@@ -13,7 +13,6 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test:
         [
@@ -54,11 +53,20 @@ services:
       - backend_gems:/usr/local/bundle
     command: >
       sh -c "
+        rm -f tmp/pids/server.pid &&
         bundle install &&
-        rails db:migrate &&
-        rails db:seed &&
-        rails server -b 0.0.0.0
+        bundle exec rails db:migrate &&
+        bundle exec rails server -b 0.0.0.0
       "
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'ruby -rnet/http -ruri -e "exit(Net::HTTP.get_response(URI.parse(%q{http://localhost:3000/up})).code == %q{200} ? 0 : 1)"'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
     networks:
       - expense_network
 
@@ -68,11 +76,12 @@ services:
       dockerfile: Dockerfile
     container_name: expense_system_frontend
     environment:
-      VITE_API_URL: http://localhost:3000
+      VITE_API_URL: http://localhost:3000/api
     ports:
       - "5173:5173"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     volumes:
       - ./frontend:/app
       - frontend_node_modules:/app/node_modules
